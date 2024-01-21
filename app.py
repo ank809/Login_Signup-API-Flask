@@ -10,7 +10,6 @@ mongo= PyMongo(app).db
 def hi():
     return "Hello"
 
-
 def isPassword(password):
     if (
         len(password)>=8 
@@ -23,6 +22,7 @@ def isPassword(password):
         return True
     else:
         return False
+    
 @app.route('/register', methods=['POST'])
 def register():
     if request.method=="POST":
@@ -44,6 +44,15 @@ def register():
         mongo.users.insert_one(user)
         return jsonify({"successfull":"Account Created" })
 
+@app.route('/login', methods=['POST'])
+def login():
+    username= request.json['username']
+    password= request.json['password']
+    user= mongo.users.find_one({"username":username})
+    if user and check_password_hash(user['password'], password):
+        return jsonify({"success":"user logged in"}),200
+    else:
+        return jsonify({"error":"Invalid username or password"}),401
 
 if __name__== "__main__":
     app.run(debug=True)
